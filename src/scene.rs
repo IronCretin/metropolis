@@ -74,10 +74,10 @@ impl Shape {
                 }
             }
             Shape::Plane { center, normal } => {
-                // let t = normal.dot(&(center - ray.start)) / normal.dot(&ray.dir);
-                // if t > MIN_DIST {
-                //     return Some(Intersection { t });
-                // }
+                let t = normal.dot(&(center - ray.start)) / normal.dot(&ray.dir);
+                if t > MIN_DIST {
+                    return Some((t, *normal));
+                }
             }
         }
         None

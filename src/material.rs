@@ -1,5 +1,6 @@
 use std::f64::consts::{PI, TAU};
 use std::fmt::Debug;
+use std::ops::Add;
 
 use nalgebra::{Rotation3, Vector3};
 use rand::Rng;
@@ -9,6 +10,7 @@ use crate::color::Color;
 #[derive(Debug, Clone)]
 pub enum Material {
     Diffuse(Color),
+    Specular(Color, f64),
     Combined(Vec<(f64, Material)>),
 }
 
@@ -23,13 +25,26 @@ impl Material {
             // we don't need to weight by the sine because points are generated
             // uniformly on the plane, just converted to angles for convenience
             &Self::Diffuse(color) => color, //* phi_out.sin(),
+            &Self::Specular(color, alpha) => {
+                // dot product of outgoing vector with reflection, raised to exponent
+                let dot =
+                    -theta.cos() * phi_in.sin() * phi_out.sin() + phi_in.cos() * phi_out.cos();
+                color * dot.abs().powf(alpha)
+            }
             Self::Combined(mats) => mats
                 .iter()
                 .map(|(w, m)| m.bsdf(phi_in, theta, phi_out) * *w)
                 .sum(),
         }
     }
-    /// By default generate a random point on the sphere
+    fn color(&self) -> Color {
+        match self {
+            &Self::Diffuse(color) => color,
+            &Self::Specular(color, _) => color,
+            Self::Combined(mats) => mats.iter().map(|(w, m)| m.color() * *w).sum(),
+        }
+    }
+    /// By default generate a random point on the hemisphere
     pub fn propose<R: Rng + ?Sized>(
         &self,
         normal: Vector3<f64>,
@@ -41,12 +56,9 @@ impl Material {
         let r = (1. - z * z).sqrt();
 
         (
-            1. / (4. * PI),
+            self.color().luminance() / (2. * PI),
             Rotation3::rotation_between(&Vector3::z(), &normal).unwrap_or(Rotation3::identity())
                 * Vector3::new(theta.cos() * r, theta.sin() * r, z),
         )
-    }
-    pub fn propose_probability(&self, theta: f64, phi: f64) -> f64 {
-        0.5 * PI
     }
 }

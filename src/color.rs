@@ -12,6 +12,10 @@ impl Color {
     pub const fn new(r: f64, g: f64, b: f64) -> Self {
         Color { r, g, b }
     }
+    pub fn luminance(&self) -> f64 {
+        // source: https://stackoverflow.com/questions/596216/formula-to-determine-perceived-brightness-of-rgb-color
+        0.2126 * self.r + 0.7152 * self.g + 0.0722 * self.b
+    }
 }
 impl From<Color> for u32 {
     fn from(color: Color) -> u32 {
