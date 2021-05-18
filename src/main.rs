@@ -13,7 +13,6 @@ use std::time::Duration;
 use std::usize;
 
 use lazy_static::lazy_static;
-// use crossbeam_utils::thread;
 use minifb::{Window, WindowOptions};
 use nalgebra::Vector3;
 use rayon::ThreadPoolBuilder;
@@ -30,7 +29,7 @@ const N_THREADS: usize = 8;
 
 const SAMPLES_PER_PIXEL: usize = 50;
 
-// do not consider intersections closer than this. (prevents shadow acne)
+// do not consider intersections closer than this. (mostly prevents shadow acne)
 const MIN_DIST: f64 = 0.001;
 
 // chance of adding another step to the traced path
@@ -130,7 +129,6 @@ fn main() {
         .num_threads(N_THREADS)
         .build()
         .unwrap();
-    // pool.scope(|scope| {
     // draw lights
     for light in &SCENE.lights {
         SCENE.camera.record_sample(
@@ -149,21 +147,10 @@ fn main() {
 
     println!("spawning threads...");
     for i in 0..WIDTH {
-        // let x = 2. * i as f64 / WIDTH as f64 - 1.;
         let x = 2. * (i as i32 - WIDTH as i32 / 2) as f64 / WIDTH as f64;
         for j in 0..HEIGHT {
             let y = 2. * (j as i32 - HEIGHT as i32 / 2) as f64 / WIDTH as f64;
-            // let y = 2. * j as f64 / HEIGHT as f64 - 1.;
-            // assert!(-1. <= x);
-            // assert!(x < 1.);
-            // assert!(-1. <= y);
-            // assert!(y < 1.);
-            // println!("{}", x);
-            // if y > 0. {
-            //     println!(".");
-            // }
-            // println!("{}", y);
-            // do this twice to account for multiple lights
+            // do this to account for multiple lights
             for light in &SCENE.lights {
                 pool.spawn(move || {
                     draw(
@@ -187,7 +174,7 @@ fn main() {
             }
         }
 
-        // We unwrap here as we want this code to exit if it fails. Real applications may want to handle this in a different way
+        // Unwrap here as we want this code to exit if it fails. Real applications may want to handle this in a different way
         window
             .update_with_buffer(&buffer, IMAGE.width, IMAGE.height)
             .unwrap();
@@ -196,5 +183,4 @@ fn main() {
     }
 
     exit(0)
-    // });
 }

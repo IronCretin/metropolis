@@ -13,9 +13,6 @@ pub fn draw(n: usize, x: f64, y: f64, light: &Light, scene: &Scene, image: &Imag
     let (p0, mut path) = scene.propose(x, y, light, &mut rng);
     let mut old_p = p0;
     for _ in 0..n {
-        // these seem broken
-        // let f = path.measure(scene);
-        // let weight = f / p0;
         scene.camera.record_sample(
             &path,
             scene,
@@ -35,13 +32,6 @@ pub fn draw(n: usize, x: f64, y: f64, light: &Light, scene: &Scene, image: &Imag
                     // println!(".");
                     old_p = p;
                     path = new_path;
-                } else {
-                    // println!("new m {}", new_path.measure(scene));
-                    // println!("m {}", path.measure(scene));
-                    // println!("old p {}", old_p);
-                    // println!("p {}", p);
-                    // println!(" -> {}", accept);
-                    // println!("-")
                 }
             }
         }

@@ -13,11 +13,8 @@ use crate::DISTANCE_FACTOR;
 #[derive(Debug, Clone)]
 pub struct Camera {
     pub pos: Vector3<f64>,
-    // currently ignore these
-    // pub facing: Vector3<f64>,
-    // pub up: Vector3<f64>,
     rotation: Rotation3<f64>,
-    // focal length
+    /// focal length
     f: f64,
     /// Angular distance to each edge of the lens
     pub fov: f64,
@@ -77,25 +74,13 @@ impl Camera {
             let proj_out = outgoing - outgoing.dot(&normal) / normal.magnitude_squared() * normal;
             let theta = proj_in.angle(&proj_out);
             color *= path.objects[i].material.bsdf(phi_in, theta, phi_out)
-
-            // color *= path.objects[i]
         }
-        // if x < image.width && y < image.height {
         let mut buffer = image.buffer.lock().unwrap();
-        // print!("{} {}", x, y);
         if image.width * y + x < buffer.len() {
-            // print!("*");
             buffer[image.width * y + x] += color;
-        } else {
-            // println!("{}", projected);
-            // println!("{},{}", x, y);
         }
-        // println!()
-        // }
     }
     pub fn propose(&self, x: f64, y: f64) -> Vector3<f64> {
-        // let x = rand::thread_rng().gen_range(-1. ..1.);
-        // let y = rand::thread_rng().gen_range(-1. ..1.);
         let v = Vector3::new(x, y, self.f);
         self.rotation.inverse_transform_vector(&v)
     }
