@@ -27,8 +27,11 @@ pub fn draw(n: usize, x: f64, y: f64, light: &Light, scene: &Scene, image: &Imag
                 old_p = p;
                 path = new_path;
             } else {
-                let accept = new_path.measure(scene) / path.measure(scene) * old_p / p;
-                if rng.gen::<f64>() < accept * 10. {
+                let accept = new_path.measure(scene) / measure * old_p / p;
+            //     if accept.is_nan() {
+            //     println!("{}", accept);
+            // }
+                if rng.gen::<f64>() < accept {
                     // println!(".");
                     old_p = p;
                     path = new_path;
@@ -54,6 +57,9 @@ impl<'a> Path<'a> {
     fn measure(&self, scene: &Scene) -> f64 {
         // light pdf
         let mut prob = 1. / (4. * PI);
+        if prob.is_nan() {
+            println!("nan at start somehow");
+        }
         for i in 0..self.objects.len() {
             let x0 = self.points[i];
             let x1 = self.points[i + 1];
@@ -68,9 +74,12 @@ impl<'a> Path<'a> {
                     break;
                 }
             }
-            let mut geom = 1. / (1. + DISTANCE_FACTOR * incoming.magnitude_squared());
+            let mut geom = 1.; // (1. + DISTANCE_FACTOR * incoming.magnitude_squared());
             geom *= incoming.normalize().dot(&normal);
             prob *= geom;
+            // if prob.is_nan() {
+            //     panic!("nan at geometry\nx0 = {}\nx1 = {} geom= {}\nincoming = {}\nnormal={}\npath={:#?}", x0, x1, geom, incoming, normal, self);
+            // }
 
             // BSDF contribution
             let phi_in = incoming.angle(&normal);
@@ -84,6 +93,10 @@ impl<'a> Path<'a> {
                 .material
                 .bsdf(phi_in, theta, phi_out)
                 .luminance();
+
+            // if prob.is_nan() {
+            //     println!("nan at luminance");
+            // }
         }
         prob
     }

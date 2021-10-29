@@ -27,7 +27,7 @@ const WIDTH: usize = 640;
 const HEIGHT: usize = 640;
 const N_THREADS: usize = 8;
 
-const SAMPLES_PER_PIXEL: usize = 50;
+const SAMPLES_PER_PIXEL: usize = 20;
 
 // do not consider intersections closer than this. (mostly prevents shadow acne)
 const MIN_DIST: f64 = 0.001;
@@ -56,10 +56,10 @@ lazy_static! {
             //     pos: Vector3::new(-1.5, 1.5, -1.5),
             //     color: Color::new(1., 0., 0.),
             // },
-            // Light {
-            //     pos: Vector3::new(0., 1.5, -1.5),
-            //     color: Color::new(0., 0., 1.),
-            // },
+            Light {
+                pos: Vector3::new(0., 1.5, -1.5),
+                color: Color::new(0., 0., 1.),
+            },
             Light {
                 pos: Vector3::new(1.5, 1.5, -1.5),
                 color: Color::new(1., 1., 1.),
@@ -72,8 +72,8 @@ lazy_static! {
                     radius: 1.,
                 },
                 material: Material::Combined(vec![
-                    (0.6, Material::Diffuse(Color::new(1., 0.5, 0.5))),
-                    (0.4, Material::Specular(Color::new(1., 0.5, 0.5), 10.)),
+                    (0.2, Material::Diffuse(Color::new(1., 0.5, 0.5))),
+                    (0.8, Material::Specular(Color::new(1., 0.5, 0.5), 100.)),
                     ]),
             },
             Object {
@@ -95,7 +95,7 @@ lazy_static! {
                     center: Vector3::new(0., 0., 0.),
                     radius: 4.,
                 },
-                material: Material::Diffuse(Color::new(0., 0., 0.5)),
+                material: Material::Diffuse(Color::new(0.5, 0.5, 0.5)),
             },
             Object {
                 shape: Shape::Plane {
